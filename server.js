@@ -160,8 +160,12 @@ app.get("/search", async (req, res) => {
 
   try {
     console.log("Search query:", query, "with token:", tokens.accessToken.substring(0, 20) + "...");
+    const encodedQuery = encodeURIComponent(query);
+    const searchUrl = `https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=15`;
+    console.log("Search URL:", searchUrl);
+    
     const response = await axios.get(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=15`,
+      searchUrl,
       { 
         headers: { 
           Authorization: `Bearer ${tokens.accessToken}`,
@@ -173,8 +177,12 @@ app.get("/search", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error("Search error:", error.message, "Status:", error.response?.status);
+    console.error("Error response data:", error.response?.data);
     if (error.response?.status === 401) {
       console.error("Token expired, need refresh");
+    }
+    if (error.response?.status === 400) {
+      console.error("Bad request - likely query formatting issue");
     }
     res.status(error.response?.status || 500).json({ 
       error: "Search failed", 
@@ -194,9 +202,10 @@ app.get("/recommendations", async (req, res) => {
   try {
     console.log("Loading recommendations with token:", tokens.accessToken.substring(0, 20) + "...");
     
-    // Get featured playlists and extract tracks
-    const playlistRes = await axios.get(
-      `https://api.spotify.com/v1/browse/featured-playlists?limit=1`,
+    // Use search for popular tracks as recommendations (more reliable)
+    // This searches for tracks tagged as popular/hipster
+    const response = await axios.get(
+      `https://api.spotify.com/v1/search?q=year:2024&type=track&limit=20`,
       { 
         headers: { 
           Authorization: `Bearer ${tokens.accessToken}`,
@@ -205,29 +214,12 @@ app.get("/recommendations", async (req, res) => {
       }
     );
     
-    console.log("Got playlists:", playlistRes.data.playlists?.items?.length);
-    const playlists = playlistRes.data.playlists?.items || [];
-    if (playlists.length === 0) {
-      console.log("No playlists found, returning empty");
-      return res.json({ items: [] });
-    }
-
-    // Get tracks from the first featured playlist
-    const tracksRes = await axios.get(
-      playlists[0].tracks.href,
-      { 
-        headers: { 
-          Authorization: `Bearer ${tokens.accessToken}`,
-          "Content-Type": "application/json"
-        } 
-      }
-    );
-    
-    const tracks = tracksRes.data.items?.slice(0, 20).map(item => item.track) || [];
-    console.log("Got tracks:", tracks.length);
+    const tracks = response.data.tracks?.items || [];
+    console.log("Got recommendation tracks:", tracks.length);
     res.json({ items: tracks });
   } catch (error) {
     console.error("Recommendations error:", error.message, "Status:", error.response?.status);
+    console.error("Error response:", error.response?.data);
     if (error.response?.status === 401) {
       console.error("Token expired");
     }
