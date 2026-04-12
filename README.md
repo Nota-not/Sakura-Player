@@ -1,5 +1,5 @@
 # Sakura-Player
-USAGE INSTRUCTIONS (For dummies)
+USAGE INSTRUCTIONS (For dummies) // You may refer to the file labelled "Download Guide" for a step - by step guide of the setup process
 
 Open a file
 
