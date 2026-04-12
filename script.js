@@ -294,8 +294,8 @@ function displaySearchResults(tracks) {
     const item = document.createElement("div");
     item.className = "result-item";
     item.innerHTML = `
-      <div class="result-name">${track.name}</div>
-      <div class="result-artist">${track.artists.map((a) => a.name).join(", ")}</div>
+      <div class="result-name">${esc(track.name)}</div>
+      <div class="result-artist">${esc(track.artists.map((a) => a.name).join(", "))}</div>
     `;
     item.addEventListener("click", () => {
       addToQueue(track);
@@ -363,8 +363,8 @@ function displayRecommendations(tracks) {
     const item = document.createElement("div");
     item.className = "result-item";
     item.innerHTML = `
-      <div class="result-name">${track.name}</div>
-      <div class="result-artist">${track.artists.map((a) => a.name).join(", ")}</div>
+      <div class="result-name">${esc(track.name)}</div>
+      <div class="result-artist">${esc(track.artists.map((a) => a.name).join(", "))}</div>
     `;
     item.addEventListener("click", () => {
       addToQueue(track);
@@ -410,8 +410,8 @@ function updateQueueDisplay() {
 
     item.innerHTML = `
       <div class="qi-info">
-        <div class="qi-name">${track.name}</div>
-        <div class="qi-artist">${track.artist}</div>
+        <div class="qi-name">${esc(track.name)}</div>
+        <div class="qi-artist">${esc(track.artist)}</div>
       </div>
       <button class="qi-remove" data-index="${index}">✕</button>
     `;
