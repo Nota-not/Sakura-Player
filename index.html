@@ -112,6 +112,14 @@
 
     <div class="app-container" style="display:none;"></div>
 
+    <!-- Define Spotify SDK callback BEFORE loading SDK -->
+    <script>
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        console.log("Spotify SDK Ready!");
+        // Will be properly initialized in script.js
+      };
+    </script>
+
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <script src="script.js"></script>
   </body>

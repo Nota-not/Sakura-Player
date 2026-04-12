@@ -41,19 +41,14 @@ let queue = [];
 let currentQueueIndex = -1;
 let isPlaying = false;
 
-function esc(str) {
-return String(str)
-.replace(/&/g, "&amp;"
-.replace(/</g, "&lt;")
-.replace(/>/g, "&gt;")
-.replace(/"/g, "&quot;")
-);
-)
-}
-
 // ─── Initialize ─────────────────────────────────────────────────────────────
+// Redefine the callback once script.js loads
 window.onSpotifyWebPlaybackSDKReady = () => {
-  if (!accessToken) return;
+  console.log("Spotify SDK Ready - initializing player");
+  if (!accessToken) {
+    console.log("No access token yet - waiting for login");
+    return;
+  }
   _createPlayer();
 };
 
@@ -304,8 +299,8 @@ function displaySearchResults(tracks) {
     const item = document.createElement("div");
     item.className = "result-item";
     item.innerHTML = `
-      <div class="result-name">${esc(track.name)}</div>
-      <div class="result-artist">${esc(track.artists.map((a) => a.name).join(", "))}</div>
+      <div class="result-name">${track.name}</div>
+      <div class="result-artist">${track.artists.map((a) => a.name).join(", ")}</div>
     `;
     item.addEventListener("click", () => {
       addToQueue(track);
@@ -373,8 +368,8 @@ function displayRecommendations(tracks) {
     const item = document.createElement("div");
     item.className = "result-item";
     item.innerHTML = `
-      <div class="result-name">${esc(track.name)}</div>
-      <div class="result-artist">${esc(track.artists.map((a) => a.name).join(", "))}</div>
+      <div class="result-name">${track.name}</div>
+      <div class="result-artist">${track.artists.map((a) => a.name).join(", ")}</div>
     `;
     item.addEventListener("click", () => {
       addToQueue(track);
@@ -420,8 +415,8 @@ function updateQueueDisplay() {
 
     item.innerHTML = `
       <div class="qi-info">
-        <div class="qi-name">${esc(track.name)}</div>
-        <div class="qi-artist">${esc(track.artist)}</div>
+        <div class="qi-name">${track.name}</div>
+        <div class="qi-artist">${track.artist}</div>
       </div>
       <button class="qi-remove" data-index="${index}">✕</button>
     `;
