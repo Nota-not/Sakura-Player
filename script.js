@@ -41,6 +41,16 @@ let queue = [];
 let currentQueueIndex = -1;
 let isPlaying = false;
 
+function esc(str) {
+return String(str)
+.replace(/&/g, "&amp;"
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;")
+);
+)
+}
+
 // ─── Initialize ─────────────────────────────────────────────────────────────
 window.onSpotifyWebPlaybackSDKReady = () => {
   if (!accessToken) return;

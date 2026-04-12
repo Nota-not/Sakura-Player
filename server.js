@@ -8,7 +8,11 @@ const PORT = 8888;
 
 // Enable CORS for Electron app
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  const allowed = ["http://localhost:8888", 'file://'];
+  const origin = req.headers.origin;
+  if (!origin || allowed.some( o => origin.startsWith(o) )) {
+    res.header("Access-Control-Allow-Origin", origin || "*");
+  }
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
@@ -39,7 +43,7 @@ app.get("/callback", async (req, res) => {
   const error = req.query.error;
 
   if (error) {
-    return res.send(`<h1>Error</h1><p>${error}</p>`);
+    return res.send(`<h1>Error</h1><p>Authentication failed</p>`);
   }
 
   if (!code) {
