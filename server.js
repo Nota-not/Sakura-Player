@@ -154,7 +154,9 @@ app.post("/logout", (req, res) => {
 // Search - proxy for Spotify search API
 app.get("/search", async (req, res) => {
   const query = req.query.q;
-  if (!tokens.accessToken) {
+  const token = req.headers.authorization?.replace("Bearer ", "") || tokens.accessToken;
+  
+  if (!token) {
     console.error("Search failed: no access token");
     return res.status(401).json({ error: "No access token available", tracks: { items: [] } });
   }
@@ -163,7 +165,7 @@ app.get("/search", async (req, res) => {
   }
 
   try {
-    console.log("Search query:", query, "with token:", tokens.accessToken.substring(0, 20) + "...");
+    console.log("Search query:", query, "with token:", token.substring(0, 20) + "...");
     const encodedQuery = encodeURIComponent(query);
     const searchUrl = `https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=15`;
     console.log("Search URL:", searchUrl);
@@ -172,7 +174,7 @@ app.get("/search", async (req, res) => {
       searchUrl,
       { 
         headers: { 
-          Authorization: `Bearer ${tokens.accessToken}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         } 
       }
@@ -198,20 +200,22 @@ app.get("/search", async (req, res) => {
 
 // Recommendations - get new releases instead (more reliable, no special permissions needed)
 app.get("/recommendations", async (req, res) => {
-  if (!tokens.accessToken) {
+  const token = req.headers.authorization?.replace("Bearer ", "") || tokens.accessToken;
+  
+  if (!token) {
     console.error("Recommendations failed: no access token");
     return res.status(401).json({ error: "No access token available", items: [] });
   }
 
   try {
-    console.log("Loading recommendations with token:", tokens.accessToken.substring(0, 20) + "...");
+    console.log("Loading recommendations with token:", token.substring(0, 20) + "...");
     
     // Use browse/new-releases endpoint - no extra permissions needed, always works
     const response = await axios.get(
       `https://api.spotify.com/v1/browse/new-releases?limit=20`,
       { 
         headers: { 
-          Authorization: `Bearer ${tokens.accessToken}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         } 
       }

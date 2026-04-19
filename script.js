@@ -262,7 +262,11 @@ async function searchSpotify(query) {
     const url = `${BACKEND_URL}/search?q=${encodeURIComponent(query)}`;
     console.log("5. Full search URL:", url);
     
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: {
+        "Authorization": `Bearer ${accessToken}`
+      }
+    });
     console.log("6. Response status:", res.status);
     console.log("7. Response OK?", res.ok);
 
@@ -329,7 +333,11 @@ async function loadRecommendations() {
     const url = `${BACKEND_URL}/recommendations`;
     console.log("3. Full recommendations URL:", url);
     
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: {
+        "Authorization": `Bearer ${accessToken}`
+      }
+    });
     console.log("4. Response status:", res.status);
     console.log("5. Response OK?", res.ok);
 
