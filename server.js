@@ -196,7 +196,7 @@ app.get("/search", async (req, res) => {
   }
 });
 
-// Recommendations - get recommended tracks
+// Recommendations - get new releases instead (more reliable, no special permissions needed)
 app.get("/recommendations", async (req, res) => {
   if (!tokens.accessToken) {
     console.error("Recommendations failed: no access token");
@@ -206,10 +206,9 @@ app.get("/recommendations", async (req, res) => {
   try {
     console.log("Loading recommendations with token:", tokens.accessToken.substring(0, 20) + "...");
     
-    // Use search for popular tracks as recommendations (more reliable)
-    // This searches for tracks tagged as popular/hipster
+    // Use browse/new-releases endpoint - no extra permissions needed, always works
     const response = await axios.get(
-      `https://api.spotify.com/v1/search?q=year:2024&type=track&limit=20`,
+      `https://api.spotify.com/v1/browse/new-releases?limit=20`,
       { 
         headers: { 
           Authorization: `Bearer ${tokens.accessToken}`,
@@ -218,14 +217,24 @@ app.get("/recommendations", async (req, res) => {
       }
     );
     
-    const tracks = response.data.tracks?.items || [];
+    // Convert playlists to tracks format for compatibility
+    const playlists = response.data.playlists?.items || [];
+    const tracks = playlists.map(playlist => ({
+      id: playlist.id,
+      name: playlist.name,
+      artists: [{ name: "Playlist" }],
+      album: { images: playlist.images },
+      external_urls: playlist.external_urls,
+      uri: playlist.uri
+    }));
+    
     console.log("Got recommendation tracks:", tracks.length);
     res.json({ items: tracks });
   } catch (error) {
     console.error("Recommendations error:", error.message, "Status:", error.response?.status);
     console.error("Error response:", error.response?.data);
     if (error.response?.status === 401) {
-      console.error("Token expired");
+      console.error("Token expired - need to refresh");
     }
     res.status(error.response?.status || 500).json({ 
       items: [],
