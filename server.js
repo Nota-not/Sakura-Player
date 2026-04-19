@@ -210,9 +210,10 @@ app.get("/recommendations", async (req, res) => {
   try {
     console.log("Loading recommendations with token:", token.substring(0, 20) + "...");
     
-    // Use browse/new-releases endpoint - no extra permissions needed, always works
+    // Use a popular artist search as recommendations (most reliable, no special permissions)
+    // Search for a popular artist and get their top tracks
     const response = await axios.get(
-      `https://api.spotify.com/v1/browse/new-releases?limit=20`,
+      `https://api.spotify.com/v1/search?q=artist:the%20weeknd&type=track&limit=20`,
       { 
         headers: { 
           Authorization: `Bearer ${token}`,
@@ -221,16 +222,7 @@ app.get("/recommendations", async (req, res) => {
       }
     );
     
-    // Convert playlists to tracks format for compatibility
-    const playlists = response.data.playlists?.items || [];
-    const tracks = playlists.map(playlist => ({
-      id: playlist.id,
-      name: playlist.name,
-      artists: [{ name: "Playlist" }],
-      album: { images: playlist.images },
-      external_urls: playlist.external_urls,
-      uri: playlist.uri
-    }));
+    const tracks = response.data.tracks?.items || [];
     
     console.log("Got recommendation tracks:", tracks.length);
     res.json({ items: tracks });
